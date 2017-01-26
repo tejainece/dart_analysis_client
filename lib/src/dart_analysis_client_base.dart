@@ -158,7 +158,7 @@ class AnalysisServer {
     Map result = await _send(method, null);
     final ver = new ServerGetVersionResult.fromJson(result);
     final ret = new VersionResponse();
-    ret.servicesVersion = ver._version;
+    ret.analysisServer = ver._version;
     return ret;
   }
 

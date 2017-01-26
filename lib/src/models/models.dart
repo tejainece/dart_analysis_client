@@ -538,24 +538,9 @@ class VersionResponse {
   /** The full Dart SDK version that DartServices is compatible with. */
   String sdkVersionFull;
   /** The dart-services backend version. */
-  String servicesVersion;
+  String analysisServer;
 
   VersionResponse();
-
-  VersionResponse.fromJson(Map _json) {
-    if (_json.containsKey("runtimeVersion")) {
-      runtimeVersion = _json["runtimeVersion"];
-    }
-    if (_json.containsKey("sdkVersion")) {
-      sdkVersion = _json["sdkVersion"];
-    }
-    if (_json.containsKey("sdkVersionFull")) {
-      sdkVersionFull = _json["sdkVersionFull"];
-    }
-    if (_json.containsKey("servicesVersion")) {
-      servicesVersion = _json["servicesVersion"];
-    }
-  }
 
   Map toJson() {
     var _json = new Map();
@@ -568,8 +553,8 @@ class VersionResponse {
     if (sdkVersionFull != null) {
       _json["sdkVersionFull"] = sdkVersionFull;
     }
-    if (servicesVersion != null) {
-      _json["servicesVersion"] = servicesVersion;
+    if (analysisServer != null) {
+      _json["analysisServer"] = analysisServer;
     }
     return _json;
   }
