@@ -175,3 +175,28 @@ class GetHoverParams implements ToJsonable {
     return json;
   }
 }
+
+/// Request parameters for 'completion.getSuggestions' request
+class GetSuggestionsParams implements ToJsonable {
+  /// The file containing the point at which suggestions are to be made.
+  final String file;
+
+  /// The offset within the file at which suggestions are to be made.
+  final int offset;
+
+  GetSuggestionsParams(this.file, this.offset);
+
+  Map<String, dynamic> toJson() {
+    final json = <String, dynamic>{};
+
+    if (file != null) {
+      json["file"] = file;
+    }
+
+    if (offset != null) {
+      json["offset"] = offset;
+    }
+
+    return json;
+  }
+}

@@ -345,3 +345,35 @@ class GetHoverResult {
     return new GetHoverResult(hovers);
   }
 }
+
+class CompletionSuggestion {
+
+}
+
+class GetSuggestionResult {
+  int replacementOffset = 0;
+
+  int replacementLength = 0;
+
+  final List<CompletionSuggestion> results = [];
+
+  GetSuggestionResult();
+
+  factory GetSuggestionResult.fromJson(Map map) {
+    final ret = new GetSuggestionResult();
+    {
+      dynamic value = map['replacementOffset'];
+      if(value is int) ret.replacementOffset = value;
+    }
+    {
+      dynamic value = map['replacementLength'];
+      if(value is int) ret.replacementLength = value;
+    }
+    {
+      dynamic value = map['results'];
+      if(value is int) ret.results = value;
+    }
+
+    return ret;
+  }
+}

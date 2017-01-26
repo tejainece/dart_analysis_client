@@ -33,6 +33,12 @@ class AnalysisServer {
   /// received.
   final HashMap<String, Completer> _pendingCommands = <String, Completer>{};
 
+  /// Commands that have been sent to the server but not yet acknowledged, and
+  /// the [Completer] objects which should be completed when acknowledgement is
+  /// received.
+  final HashMap<String, Completer> _pendingEventListeners =
+      <String, Completer>{};
+
   /// Number which should be used to compute the 'id' to send in the next
   /// command sent to the server.
   int _nextId = 0;
@@ -66,11 +72,27 @@ class AnalysisServer {
     if (params != null) {
       command['params'] = params.toJson();
     }
-    Completer completer = new Completer();
+    Completer<Map> completer = new Completer<Map>();
     _pendingCommands[id] = completer;
     String line = JSON.encode(command);
     _process.stdin.add(UTF8.encoder.convert("$line\n"));
     return completer.future;
+  }
+
+  Future<Map> _sendAndWaitNotification(String method, ToJsonable params,
+      {Duration duration}) async {
+    Map result = await _send(method, params);
+    final String id = result['id'];
+    if (id is! String) {
+      throw new Exception('No event Id in response!');
+    }
+    Completer<Map> completer = new Completer<Map>();
+    _pendingEventListeners['$method.$id'] = completer;
+    Future<Map> future = completer.future;
+    future.timeout(new Duration(), onTimeout: () {
+      completer.completeError(new Exception('Request timed out!'));
+    });
+    return await completer.future;
   }
 
   /// Restarts, or starts, the analysis server process.
@@ -113,7 +135,6 @@ class AnalysisServer {
         _pendingCommands.remove(id);
       }
       if (message.containsKey('error')) {
-        // TODO(paulberry): propagate the error info to the completer.
         kill();
         completer.completeError(new UnimplementedError(
             'Server responded with an error: ${JSON.encode(message)}'));
@@ -123,8 +144,22 @@ class AnalysisServer {
     } else {
       // Message is a notification.  It should have an event and possibly
       // params.
-      // TODO implement event notification
-      // TODO notificationProcessor(messageAsMap['event'], messageAsMap['params']);
+      if (message['event'] is String) {
+        final String event = message['event'];
+        //TODO post event notification
+        dynamic params = message['params'];
+        String id;
+        if (params is Map) {
+          dynamic idDyn = params['id'];
+          if (idDyn is String) {
+            final String key = '$event.$id';
+            Completer completer = _pendingEventListeners.remove(key);
+            if (completer != null) {
+              completer.complete(params);
+            }
+          }
+        }
+      }
     }
   }
 
@@ -197,7 +232,8 @@ class AnalysisServer {
 
   //TODO get all errors?
 
-  Future<GetNavigationResult> getNavigation(String filename, int offset, int length) async {
+  Future<GetNavigationResult> getNavigation(
+      String filename, int offset, int length) async {
     final String method = 'analysis.getNavigation';
     final param = new GetNavigationParams(filename, offset, length);
     Map result = await _send(method, param);
@@ -213,6 +249,8 @@ class AnalysisServer {
 
   Future getSuggestions(String filename, int offset) async {
     final String method = 'completion.getSuggestions';
+    final param = new GetSuggestionsParams(filename, offset);
+    Map result = await _sendAndWaitNotification(method, param);
     //TODO
   }
 }
