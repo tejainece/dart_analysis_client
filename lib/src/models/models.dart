@@ -81,7 +81,9 @@ class AnalysisResults {
 
   AnalysisResults.fromJson(Map _json) {
     if (_json.containsKey("issues")) {
-      issues = _json["issues"].map((value) => new AnalysisIssue.fromJson(value)).toList();
+      issues = _json["issues"]
+          .map((value) => new AnalysisIssue.fromJson(value))
+          .toList();
     }
     if (_json.containsKey("packageImports")) {
       packageImports = _json["packageImports"];
@@ -114,7 +116,9 @@ class CandidateFix {
 
   CandidateFix.fromJson(Map _json) {
     if (_json.containsKey("edits")) {
-      edits = _json["edits"].map((value) => new SourceEdit.fromJson(value)).toList();
+      edits = _json["edits"]
+          .map((value) => new SourceEdit.fromJson(value))
+          .toList();
     }
     if (_json.containsKey("message")) {
       message = _json["message"];
@@ -282,7 +286,9 @@ class FixesResponse {
 
   FixesResponse.fromJson(Map _json) {
     if (_json.containsKey("fixes")) {
-      fixes = _json["fixes"].map((value) => new ProblemAndFixes.fromJson(value)).toList();
+      fixes = _json["fixes"]
+          .map((value) => new ProblemAndFixes.fromJson(value))
+          .toList();
     }
   }
 
@@ -361,7 +367,9 @@ class ProblemAndFixes {
 
   ProblemAndFixes.fromJson(Map _json) {
     if (_json.containsKey("fixes")) {
-      fixes = _json["fixes"].map((value) => new CandidateFix.fromJson(value)).toList();
+      fixes = _json["fixes"]
+          .map((value) => new CandidateFix.fromJson(value))
+          .toList();
     }
     if (_json.containsKey("length")) {
       length = _json["length"];

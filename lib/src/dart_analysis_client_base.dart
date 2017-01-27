@@ -79,7 +79,8 @@ class AnalysisServer {
     return completer.future;
   }
 
-  Future<Map> _sendAndWaitNotification(String method, ToJsonable params,
+  Future<Map> _sendAndWaitNotification(
+      String method, ToJsonable params, String event,
       {Duration duration}) async {
     Map result = await _send(method, params);
     final String id = result['id'];
@@ -87,10 +88,13 @@ class AnalysisServer {
       throw new Exception('No event Id in response!');
     }
     Completer<Map> completer = new Completer<Map>();
-    _pendingEventListeners['$method.$id'] = completer;
+    _pendingEventListeners['$event.$id'] = completer;
     Future<Map> future = completer.future;
-    future.timeout(new Duration(), onTimeout: () {
-      completer.completeError(new Exception('Request timed out!'));
+    future.timeout(new Duration(seconds: 60), onTimeout: () {
+      _pendingEventListeners.remove('$method.$id');
+      if (!completer.isCompleted) {
+        completer.completeError(new Exception('Request timed out!'));
+      }
     });
     return await completer.future;
   }
@@ -147,15 +151,18 @@ class AnalysisServer {
       if (message['event'] is String) {
         final String event = message['event'];
         //TODO post event notification
-        dynamic params = message['params'];
-        String id;
-        if (params is Map) {
-          dynamic idDyn = params['id'];
-          if (idDyn is String) {
-            final String key = '$event.$id';
-            Completer completer = _pendingEventListeners.remove(key);
-            if (completer != null) {
-              completer.complete(params);
+        if (event == EventName.completionResults) {
+          dynamic params = message['params'];
+          if (params is Map) {
+            dynamic id = params['id'];
+            final bool isLast =
+                params['isLast'] is bool ? params['isLast'] : false;
+            if (isLast && id is String) {
+              final String key = '$event.$id';
+              Completer completer = _pendingEventListeners.remove(key);
+              if (completer != null) {
+                completer.complete(params);
+              }
             }
           }
         }
@@ -198,8 +205,8 @@ class AnalysisServer {
   }
 
   Future<Null> setProjectRoots(final List<String> included,
-      {final List<String> excluded,
-      final Map<String, String> packageRoots}) async {
+      {final List<String> excluded: const [],
+      final Map<String, String> packageRoots: const {}}) async {
     final String method = 'analysis.setAnalysisRoots';
     final param = new SetAnalysisRootsParams(included,
         excluded: excluded, packageRoots: packageRoots);
@@ -247,10 +254,16 @@ class AnalysisServer {
     return new GetHoverResult.fromJson(result);
   }
 
-  Future getSuggestions(String filename, int offset) async {
+  Future<GetSuggestionResult> getSuggestions(
+      String filename, int offset) async {
     final String method = 'completion.getSuggestions';
     final param = new GetSuggestionsParams(filename, offset);
-    Map result = await _sendAndWaitNotification(method, param);
-    //TODO
+    Map result = await _sendAndWaitNotification(
+        method, param, EventName.completionResults);
+    return new GetSuggestionResult.fromJson(result);
   }
+}
+
+class EventName {
+  static const String completionResults = 'completion.results';
 }

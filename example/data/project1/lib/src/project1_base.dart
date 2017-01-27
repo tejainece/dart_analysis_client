@@ -1,12 +1,16 @@
 // Copyright (c) 2017, Ravi Teja Gudapati. All rights reserved. Use of this source code
 // is governed by a BSD-style license that can be found in the LICENSE file.
 
-import 'package:test/test.dart';
+class Hello {
+  String data1;
 
-void main() {
-  group('A group of tests', () {
-    setUp(() {});
+  String data2;
 
-    test('First Test', () {});
-  });
+  String data3;
+
+  String data4;
+}
+
+void func(Hello hello) {
+  hello.data1;
 }

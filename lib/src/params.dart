@@ -7,17 +7,23 @@ abstract class ToJsonable {
 /// Request parameters for 'analysis.setAnalysisRoots' request
 class SetAnalysisRootsParams implements ToJsonable {
   /// A list of the files and directories that should be analyzed.
-  final List<String> included;
+  final List<String> included = [];
 
   /// A list of the files and directories within the included directories that
   /// should not be analyzed.
-  final List<String> excluded;
+  final List<String> excluded = [];
 
   /// A mapping from source directories to package roots that should override
   /// the normal package: URI resolution mechanism.
-  final Map<String, String> packageRoots;
+  final Map<String, String> packageRoots = {};
 
-  SetAnalysisRootsParams(this.included, {this.excluded, this.packageRoots});
+  SetAnalysisRootsParams(List<String> included,
+      {List<String> excluded: const [],
+      Map<String, String> packageRoots: const {}}) {
+    this.included.addAll(included);
+    this.excluded.addAll(excluded);
+    this.packageRoots.addAll(packageRoots);
+  }
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};

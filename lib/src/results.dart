@@ -346,8 +346,199 @@ class GetHoverResult {
   }
 }
 
-class CompletionSuggestion {
+class Element {
+  /// The kind of the element.
+  String kind;
 
+  /// The name of the element. This is typically used as the label in the outline.
+  String name;
+
+  /// The location of the name in the declaration of the element.
+  Location location;
+
+  ///   A bit-map containing the following flags:
+  ///
+  /// 0x01 - set if the element is explicitly or implicitly abstract
+  /// 0x02 - set if the element was declared to be ‘const’
+  /// 0x04 - set if the element was declared to be ‘final’
+  /// 0x08 - set if the element is a static member of a class or is a top-level function or field
+  /// 0x10 - set if the element is private
+  /// 0x20 - set if the element is deprecated
+  int flags;
+
+  /// The parameter list for the element. If the element is not a method or function
+  /// this field will not be defined. If the element doesn't have parameters
+  /// (e.g. getter), this field will not be defined. If the element has zero
+  /// parameters, this field will have a value of "()".
+  String parameters;
+
+  /// The return type of the element. If the element is not a method or function
+  /// this field will not be defined. If the element does not have a declared
+  /// return type, this field will contain an empty string.
+  String returnType;
+
+  /// The type parameter list for the element. If the element doesn't have type
+  /// parameters, this field will not be defined.
+  String typeParameters;
+
+  Element();
+
+  factory Element.fromJson(Map map) {
+    final ret = new Element();
+
+    if (map['kind'] is String) ret.kind = map['kind'];
+
+    if (map['name'] is String) ret.name = map['name'];
+
+    if (map['location'] is Map)
+      ret.location = new Location.fromJson(map['location']);
+
+    if (map['flags'] is int) ret.flags = map['flags'];
+
+    if (map['parameters'] is String) ret.parameters = map['parameters'];
+
+    if (map['returnType'] is String) ret.returnType = map['returnType'];
+
+    if (map['typeParameters'] is String)
+      ret.typeParameters = map['typeParameters'];
+
+    return ret;
+  }
+}
+
+class CompletionSuggestion {
+  /// The kind of element being suggested.
+  String kind;
+
+  /// The relevance of this completion suggestion where a higher number
+  /// indicates a higher relevance.
+  int relevance;
+
+  /// The identifier to be inserted if the suggestion is selected. If the
+  /// suggestion is for a method or function, the client might want to additionally
+  /// insert a template for the parameters. The information required in order to
+  /// do so is contained in other fields.
+  String completion;
+
+  /// The offset, relative to the beginning of the completion, of where the
+  /// selection should be placed after insertion.
+  int selectionOffset;
+
+  /// The number of characters that should be selected after insertion.
+  int selectionLength;
+
+  /// True if the suggested element is deprecated.
+  bool isDeprecated;
+
+  /// True if the element is not known to be valid for the target. This happens
+  /// if the type of the target is dynamic.
+  bool isPotential;
+
+  /// An abbreviated version of the Dartdoc associated with the element being
+  /// suggested, This field is omitted if there is no Dartdoc associated with
+  /// the element.
+  String docSummary;
+
+  /// The Dartdoc associated with the element being suggested, This field is
+  /// omitted if there is no Dartdoc associated with the element.
+  String docComplete;
+
+  /// The class that declares the element being suggested. This field is omitted
+  /// if the suggested element is not a member of a class.
+  String declaringType;
+
+  /// Information about the element reference being suggested.
+  Element element;
+
+  /// The return type of the getter, function or method or the type of the field
+  /// being suggested. This field is omitted if the suggested element is not a
+  /// getter, function or method.
+  String returnType;
+
+  /// The names of the parameters of the function or method being suggested. This
+  /// field is omitted if the suggested element is not a setter, function or method.
+  List<String> parameterNames;
+
+  /// The types of the parameters of the function or method being suggested. This
+  /// field is omitted if the parameterNames field is omitted.
+  List<String> parameterTypes;
+
+  /// The number of required parameters for the function or method being suggested.
+  /// This field is omitted if the parameterNames field is omitted.
+  int requiredParameterCount;
+
+  /// True if the function or method being suggested has at least one named
+  /// parameter. This field is omitted if the parameterNames field is omitted.
+  bool hasNamedParameters;
+
+  /// The name of the optional parameter being suggested. This field is omitted
+  /// if the suggestion is not the addition of an optional argument within an
+  /// argument list.
+  String parameterName;
+
+  /// The type of the options parameter being suggested. This field is omitted
+  /// if the parameterName field is omitted.
+  String parameterType;
+
+  /// The import to be added if the suggestion is out of scope and needs an
+  /// import to be added to be in scope.
+  String importUri;
+
+  CompletionSuggestion();
+
+  factory CompletionSuggestion.fromJson(Map map) {
+    final ret = new CompletionSuggestion();
+
+    if (map['kind'] is String) ret.kind = map['kind'];
+
+    if (map['relevance'] is int) ret.relevance = map['relevance'];
+
+    if (map['completion'] is String) ret.completion = map['completion'];
+
+    if (map['selectionOffset'] is int)
+      ret.selectionOffset = map['selectionOffset'];
+
+    if (map['selectionLength'] is int)
+      ret.selectionLength = map['selectionLength'];
+
+    if (map['isDeprecated'] is bool) ret.isDeprecated = map['isDeprecated'];
+
+    if (map['isPotential'] is bool) ret.isPotential = map['isPotential'];
+
+    if (map['docSummary'] is String) ret.docSummary = map['docSummary'];
+
+    if (map['docComplete'] is String) ret.docComplete = map['docComplete'];
+
+    if (map['declaringType'] is String)
+      ret.declaringType = map['declaringType'];
+
+    if (map['element'] is Map)
+      ret.element = new Element.fromJson(map['element']);
+
+    if (map['returnType'] is String) ret.returnType = map['returnType'];
+
+    if (map['parameterNames'] is List<String>)
+      ret.parameterNames = map['parameterNames'];
+
+    if (map['parameterTypes'] is List<String>)
+      ret.parameterTypes = map['parameterTypes'];
+
+    if (map['requiredParameterCount'] is int)
+      ret.requiredParameterCount = map['requiredParameterCount'];
+
+    if (map['hasNamedParameters'] is bool)
+      ret.hasNamedParameters = map['hasNamedParameters'];
+
+    if (map['parameterName'] is String)
+      ret.parameterName = map['parameterName'];
+
+    if (map['parameterType'] is String)
+      ret.parameterType = map['parameterType'];
+
+    if (map['importUri'] is String) ret.importUri = map['importUri'];
+
+    return ret;
+  }
 }
 
 class GetSuggestionResult {
@@ -363,15 +554,19 @@ class GetSuggestionResult {
     final ret = new GetSuggestionResult();
     {
       dynamic value = map['replacementOffset'];
-      if(value is int) ret.replacementOffset = value;
+      if (value is int) ret.replacementOffset = value;
     }
     {
       dynamic value = map['replacementLength'];
-      if(value is int) ret.replacementLength = value;
+      if (value is int) ret.replacementLength = value;
     }
     {
       dynamic value = map['results'];
-      if(value is int) ret.results = value;
+      if (value is List<Map>) {
+        ret.results.addAll(value
+            .map((Map map) => new CompletionSuggestion.fromJson(map))
+            .toList());
+      }
     }
 
     return ret;

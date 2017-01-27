@@ -5,7 +5,7 @@ import 'package:dart_analysis_client/dart_analysis_client.dart';
 
 main() async {
   Directory dir = new Directory('C:\\Program Files\\Dart\\dart-sdk');
-  if(!dir.existsSync()) {
+  if (!dir.existsSync()) {
     throw new Exception("Dart SDK dir does not exist!");
   }
   final config = new AnalyzerConfig(dir);
