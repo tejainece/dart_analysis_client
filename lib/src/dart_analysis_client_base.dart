@@ -31,17 +31,20 @@ class AnalysisServer {
   /// Commands that have been sent to the server but not yet acknowledged, and
   /// the [Completer] objects which should be completed when acknowledgement is
   /// received.
-  final HashMap<String, Completer> _pendingCommands = <String, Completer>{};
+  final HashMap<String, Completer> _pendingCommands =
+      new HashMap<String, Completer>();
 
   /// Commands that have been sent to the server but not yet acknowledged, and
   /// the [Completer] objects which should be completed when acknowledgement is
   /// received.
   final HashMap<String, Completer> _pendingEventListeners =
-      <String, Completer>{};
+      new HashMap<String, Completer>();
 
   /// Number which should be used to compute the 'id' to send in the next
   /// command sent to the server.
   int _nextId = 0;
+
+  //TODO final Stream<List<GetErrorsResult>> onErrors;
 
   AnalysisServer(this.config);
 

@@ -142,14 +142,64 @@ class GetErrorsResult {
   }
 
   factory GetErrorsResult.fromJson(Map json) {
-    List<AnalysisError> version = json['version'];
-    return new GetErrorsResult(version);
+    List<AnalysisError> errors = [];
+    {
+      dynamic value = json['errors'];
+      if (value is List) {
+        value
+            .map((Map map) => new AnalysisError.fromJson(map))
+            .forEach(errors.add);
+      }
+    }
+    return new GetErrorsResult(errors);
   }
 }
 
-class NavigationTarget {}
+class ErrorsNotificationEventResult {
+  final String filename;
 
-class NavigationRegion {}
+  final List<AnalysisError> _errors = [];
+
+  List<AnalysisError> get errors => _errors;
+  void set errors(List<AnalysisError> value) {
+    _errors.clear();
+    if (value == null) return;
+    _errors.addAll(value);
+  }
+
+  ErrorsNotificationEventResult(this.filename, List<AnalysisError> errors) {
+    this.errors = errors;
+  }
+
+  factory ErrorsNotificationEventResult.fromJson(Map json, String filename) {
+    List<AnalysisError> errors = [];
+    {
+      dynamic value = json['errors'];
+      if (value is List) {
+        value
+            .map((Map map) => new AnalysisError.fromJson(map))
+            .forEach(errors.add);
+      }
+    }
+    return new ErrorsNotificationEventResult(filename, errors);
+  }
+}
+
+class NavigationTarget {
+  NavigationTarget();
+
+  factory NavigationTarget.fromJson(Map map) {
+    return new NavigationTarget();
+  }
+}
+
+class NavigationRegion {
+  NavigationRegion();
+
+  factory NavigationRegion.fromJson(Map map) {
+    return new NavigationRegion();
+  }
+}
 
 class GetNavigationResult {
   final List<String> _files = [];
@@ -187,20 +237,24 @@ class GetNavigationResult {
   }
 
   factory GetNavigationResult.fromJson(Map map) {
-    List<String> files;
+    List<String> files = [];
     {
       dynamic value = map['files'];
-      if (value is List) files = value;
+      if (value is List<String>) files = value;
     }
-    List<NavigationTarget> targets;
+    List<NavigationTarget> targets = [];
     {
       dynamic value = map['targets'];
-      if (value is List) targets = value;
+      if (value is List<Map>)
+        targets =
+            value.map((Map map) => new NavigationTarget.fromJson(map)).toList();
     }
     List<NavigationRegion> regions;
     {
       dynamic value = map['regions'];
-      if (value is List) regions = value;
+      if (value is List<Map>)
+        regions =
+            value.map((Map map) => new NavigationRegion.fromJson(map)).toList();
     }
     return new GetNavigationResult(files, targets, regions);
   }
